@@ -1,0 +1,31 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: ${PGUSER}
+      POSTGRES_PASSWORD: ${PGPASSWORD}
+      POSTGRES_DB: ${PGDATABASE}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  phoenix:
+    build: ./time_manager
+    env_file: .env
+    environment:
+      PGHOST: db
+    depends_on:
+      - db
+    ports:
+      - "4000:4000"
+
+  front:
+    build: ./time_manager_frontend
+    depends_on:
+      - phoenix
+    ports:
+      - "8080:80"
+
+volumes:
+  db_data:
