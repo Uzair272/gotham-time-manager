@@ -1,11 +1,18 @@
 import Config
 
-# Configure your database
+# Configure your database from environment variables (see .env)
+username = System.get_env("PGUSER") || "postgres"
+password = System.get_env("PGPASSWORD") || "postgres"
+database = System.get_env("PGDATABASE") || "time_manager_dev"
+hostname = System.get_env("PGHOST") || "localhost"
+port = System.get_env("PGPORT") || "5432"
+
 config :time_manager, TimeManager.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
-  database: "time_manager_dev",
+  username: username,
+  password: password,
+  hostname: hostname,
+  database: database,
+  port: String.to_integer(port),
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
@@ -17,9 +24,7 @@ config :time_manager, TimeManager.Repo,
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
 config :time_manager, TimeManagerWeb.Endpoint,
-  # Binding to loopback ipv4 address prevents access from other machines.
-  # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
-  http: [ip: {127, 0, 0, 1}],
+  http: [ip: {0, 0, 0, 0}],
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
