@@ -3,11 +3,14 @@ defmodule TimeManagerWeb.ClockController do
 
   import Ecto.Query
 
-  alias TimeManager.{Repo, User, Clock}
+  alias TimeManager.{Accounts, Repo, User, Clock}
 
   # GET /api/clocks/:user_id -> all clocks of a user, newest first
   def index(conn, %{"user_id" => user_id}) do
-    case Repo.get(User, user_id) do
+    case Accounts.can_access_user?(conn.assigns.current_user, user_id) && Repo.get(User, user_id) do
+      false ->
+        forbidden(conn)
+
       nil ->
         user_not_found(conn)
 
@@ -26,7 +29,8 @@ defmodule TimeManagerWeb.ClockController do
   def create(conn, %{"user_id" => user_id} = params) do
     attrs = clock_params(params)
 
-    with {:ok, user} <- find_user(user_id),
+    with true <- Accounts.can_access_user?(conn.assigns.current_user, user_id) || :forbidden,
+         {:ok, user} <- find_user(user_id),
          {:ok, time} <- parse_time(attrs["time"]),
          {:ok, status} <- decide_status(user, attrs["status"]) do
       new_clock = %{"time" => time, "status" => status, "user_id" => user.id}
@@ -39,6 +43,9 @@ defmodule TimeManagerWeb.ClockController do
           conn |> put_status(:bad_request) |> json(%{errors: errors_to_map(changeset)})
       end
     else
+      :forbidden ->
+        forbidden(conn)
+
       {:error, :user_not_found} ->
         user_not_found(conn)
 
@@ -115,6 +122,10 @@ defmodule TimeManagerWeb.ClockController do
             {:error, :bad_date}
         end
     end
+  end
+
+  defp forbidden(conn) do
+    conn |> put_status(:forbidden) |> json(%{error: "You are not allowed to do this"})
   end
 
   defp user_not_found(conn) do

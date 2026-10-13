@@ -21,5 +21,8 @@ echo "Creating/migrating database..."
 mix ecto.create || true
 mix ecto.migrate
 
+# Create the admin (and demo) accounts if they don't exist yet
+mix run priv/repo/seeds.exs
+
 # Start the app (exec replaces shell with the command)
 exec "$@"

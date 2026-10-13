@@ -3,12 +3,16 @@ defmodule TimeManagerWeb.WorkingTimeController do
 
   import Ecto.Query
 
-  alias TimeManager.{Repo, User, WorkingTime}
+  alias TimeManager.{Accounts, Repo, User, WorkingTime}
+
+  # Every action checks that the signed-in user may access this user's data
+  # (yourself, your team members if you are a manager, anyone if you are an admin).
 
   # GET /api/workingtime/:user_id?start=XXX&end=YYY
   # All working times of a user; optionally only those inside the given period.
   def index(conn, %{"user_id" => user_id} = params) do
-    with {:ok, user} <- find_user(user_id),
+    with :ok <- check_access(conn, user_id),
+         {:ok, user} <- find_user(user_id),
          {:ok, from_time} <- parse_optional(params["start"]),
          {:ok, to_time} <- parse_optional(params["end"]) do
       working_times =
@@ -21,6 +25,9 @@ defmodule TimeManagerWeb.WorkingTimeController do
 
       json(conn, %{data: Enum.map(working_times, &to_map/1)})
     else
+      {:error, :forbidden} ->
+        forbidden(conn)
+
       {:error, :user_not_found} ->
         conn |> put_status(:not_found) |> json(%{error: "User not found"})
 
@@ -33,15 +40,21 @@ defmodule TimeManagerWeb.WorkingTimeController do
 
   # GET /api/workingtime/:user_id/:id
   def show(conn, %{"user_id" => user_id, "id" => id}) do
-    case Repo.get_by(WorkingTime, id: id, user_id: user_id) do
+    with :ok <- check_access(conn, user_id),
+         %WorkingTime{} = working_time <- Repo.get_by(WorkingTime, id: id, user_id: user_id) do
+      json(conn, %{data: to_map(working_time)})
+    else
+      {:error, :forbidden} -> forbidden(conn)
       nil -> not_found(conn)
-      working_time -> json(conn, %{data: to_map(working_time)})
     end
   end
 
   # POST /api/workingtime/:user_id
   def create(conn, %{"user_id" => user_id} = params) do
-    case Repo.get(User, user_id) do
+    case check_access(conn, user_id) == :ok && Repo.get(User, user_id) do
+      false ->
+        forbidden(conn)
+
       nil ->
         conn |> put_status(:not_found) |> json(%{error: "User not found"})
 
@@ -60,11 +73,16 @@ defmodule TimeManagerWeb.WorkingTimeController do
 
   # PUT /api/workingtime/:id  (only start and end can be changed)
   def update(conn, %{"id" => id} = params) do
-    case Repo.get(WorkingTime, id) do
-      nil ->
+    working_time = Repo.get(WorkingTime, id)
+
+    cond do
+      working_time == nil ->
         not_found(conn)
 
-      working_time ->
+      check_access(conn, working_time.user_id) != :ok ->
+        forbidden(conn)
+
+      true ->
         attrs = params |> working_time_params() |> Map.take(["start", "end"])
 
         case working_time |> WorkingTime.changeset(attrs) |> Repo.update() do
@@ -79,17 +97,32 @@ defmodule TimeManagerWeb.WorkingTimeController do
 
   # DELETE /api/workingtime/:id
   def delete(conn, %{"id" => id}) do
-    case Repo.get(WorkingTime, id) do
-      nil ->
+    working_time = Repo.get(WorkingTime, id)
+
+    cond do
+      working_time == nil ->
         not_found(conn)
 
-      working_time ->
+      check_access(conn, working_time.user_id) != :ok ->
+        forbidden(conn)
+
+      true ->
         {:ok, _} = Repo.delete(working_time)
         send_resp(conn, :no_content, "")
     end
   end
 
   # ---- helpers ----
+
+  defp check_access(conn, user_id) do
+    if Accounts.can_access_user?(conn.assigns.current_user, user_id),
+      do: :ok,
+      else: {:error, :forbidden}
+  end
+
+  defp forbidden(conn) do
+    conn |> put_status(:forbidden) |> json(%{error: "You are not allowed to do this"})
+  end
 
   defp find_user(user_id) do
     case Repo.get(User, user_id) do

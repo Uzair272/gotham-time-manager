@@ -38,6 +38,18 @@ defmodule TimeManagerWeb.Endpoint do
     param_key: "request_logger",
     cookie_key: "request_logger"
 
+  # CORS: lets the Vue front-end (another port) call the API *with cookies*.
+  # credentials: true is needed for the HttpOnly JWT cookie to be sent.
+  plug CORSPlug,
+    origin: [
+      "http://localhost:8080",
+      "http://127.0.0.1:8080",
+      "http://localhost:8081",
+      "http://127.0.0.1:8081"
+    ],
+    credentials: true,
+    headers: ["Content-Type", "Accept", "Authorization", "X-Requested-With", "X-XSRF-Token"]
+
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 

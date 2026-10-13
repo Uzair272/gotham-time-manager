@@ -23,6 +23,12 @@ end
 config :time_manager, TimeManagerWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 
+# Secret used to sign the JSON Web Tokens (HS256).
+# The fallback is only for development: set JWT_SECRET in production.
+config :joken,
+  default_signer:
+    System.get_env("JWT_SECRET", "dev_only_jwt_secret_please_change_me_0123456789abcdef")
+
 if config_env() == :prod do
   database_url =
     System.get_env("DATABASE_URL") ||
