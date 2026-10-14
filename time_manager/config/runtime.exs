@@ -74,6 +74,11 @@ if config_env() == :prod do
     ],
     secret_key_base: secret_key_base
 
+  # Security (Theme 07): in production, force every request onto HTTPS and send
+  # HSTS so browsers refuse plain HTTP afterwards. Only applied in :prod, so it
+  # never affects local development over http://localhost.
+  config :time_manager, TimeManagerWeb.Endpoint, force_ssl: [hsts: true]
+
   # ## SSL Support
   #
   # To get SSL working, you will need to add the `https` key
