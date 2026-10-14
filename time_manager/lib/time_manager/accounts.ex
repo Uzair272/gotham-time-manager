@@ -120,7 +120,6 @@ defmodule TimeManager.Accounts do
       if admin?(user) do
         base
       else
-        # Teams I manage + teams I am a member of
         from(t in base,
           left_join: m in "team_members",
           on: m.team_id == t.id,

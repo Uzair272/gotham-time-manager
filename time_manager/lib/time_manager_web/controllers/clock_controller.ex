@@ -19,6 +19,8 @@ defmodule TimeManagerWeb.ClockController do
           Clock
           |> where([c], c.user_id == ^user.id)
           |> order_by([c], desc: c.time, desc: c.id)
+          # Security: cap the result so a huge table can't produce a giant response (DoS)
+          |> limit(500)
           |> Repo.all()
 
         json(conn, %{data: Enum.map(clocks, &to_map/1)})
@@ -43,11 +45,11 @@ defmodule TimeManagerWeb.ClockController do
           conn |> put_status(:bad_request) |> json(%{errors: errors_to_map(changeset)})
       end
     else
-      :forbidden ->
-        forbidden(conn)
-
       {:error, :user_not_found} ->
         user_not_found(conn)
+
+      :forbidden ->
+        forbidden(conn)
 
       {:error, :bad_date} ->
         bad_request(conn, "time must look like YYYY-MM-DD HH:mm:ss")
@@ -124,12 +126,12 @@ defmodule TimeManagerWeb.ClockController do
     end
   end
 
-  defp forbidden(conn) do
-    conn |> put_status(:forbidden) |> json(%{error: "You are not allowed to do this"})
-  end
-
   defp user_not_found(conn) do
     conn |> put_status(:not_found) |> json(%{error: "User not found"})
+  end
+
+  defp forbidden(conn) do
+    conn |> put_status(:forbidden) |> json(%{error: "You are not allowed to do this"})
   end
 
   defp bad_request(conn, message) do

@@ -51,11 +51,15 @@ defmodule TimeManagerWeb.Endpoint do
     headers: ["Content-Type", "Accept", "Authorization", "X-Requested-With", "X-XSRF-Token"]
 
   plug Plug.RequestId
+  # Security: add standard protection headers to every response
+  plug TimeManagerWeb.Plugs.SecurityHeaders
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
     pass: ["*/*"],
+    # Security: reject request bodies larger than 1 MB (prevents huge-payload DoS)
+    length: 1_000_000,
     json_decoder: Phoenix.json_library()
 
   plug Plug.MethodOverride

@@ -8,6 +8,8 @@ defmodule TimeManager.Application do
   @impl true
   def start(_type, _args) do
     children = [
+      # Security: in-memory rate limiter (anti brute-force). Must start early.
+      TimeManager.RateLimiter,
       TimeManagerWeb.Telemetry,
       TimeManager.Repo,
       {DNSCluster, query: Application.get_env(:time_manager, :dns_cluster_query) || :ignore},

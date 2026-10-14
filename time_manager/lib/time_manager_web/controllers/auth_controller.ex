@@ -6,6 +6,13 @@ defmodule TimeManagerWeb.AuthController do
   alias TimeManager.Accounts
   alias TimeManagerWeb.Auth.Token
 
+  # Security: max 5 attempts per IP per minute on the public auth routes (anti brute-force)
+  plug TimeManagerWeb.Plugs.RateLimit, [name: "sign_in", limit: 5, window_ms: 60_000]
+       when action == :sign_in
+
+  plug TimeManagerWeb.Plugs.RateLimit, [name: "sign_up", limit: 5, window_ms: 60_000]
+       when action == :sign_up
+
   # POST /api/users/sign_up  (public)
   # Body: {"username": "...", "email": "...", "password": "..."}
   def sign_up(conn, params) do
