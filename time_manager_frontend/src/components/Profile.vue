@@ -1,32 +1,36 @@
 <template>
   <div>
     <h2>My profile</h2>
-    <p v-if="!user">Loading...</p>
+    <p v-if="!user" class="card">Loading...</p>
 
     <div v-else>
-      <form class="form" @submit.prevent="save">
-        <label>Username <input v-model="form.username" required /></label>
-        <label>Email <input v-model="form.email" type="email" required /></label>
-        <label>Role <input :value="user.role" disabled /></label>
+      <div class="card">
+        <form class="form" @submit.prevent="save">
+          <label>Username <input v-model="form.username" required /></label>
+          <label>Email <input v-model="form.email" type="email" required /></label>
+          <label>Role <input :value="user.role" disabled /></label>
 
-        <p><strong>Change password</strong> (leave empty to keep it)</p>
-        <input v-model="form.password" type="password" placeholder="New password" />
-        <input v-model="form.confirm" type="password" placeholder="Confirm new password" />
+          <p class="section-label"><strong>Change password</strong> (leave empty to keep it)</p>
+          <input v-model="form.password" type="password" placeholder="New password" />
+          <input v-model="form.confirm" type="password" placeholder="Confirm new password" />
 
-        <button type="submit">Save</button>
-        <p v-if="message" class="success">{{ message }}</p>
-        <p v-if="error" class="error">{{ error }}</p>
-      </form>
+          <button type="submit">Save</button>
+          <p v-if="message" class="success">{{ message }}</p>
+          <p v-if="error" class="error">{{ error }}</p>
+        </form>
+      </div>
 
-      <h3>My teams</h3>
-      <p v-if="teams.length === 0">You are not in any team yet.</p>
-      <ul>
-        <li v-for="team in teams" :key="team.id">
-          {{ team.name }}
-          <span v-if="team.manager_id === user.id">(you manage it)</span>
-          <span v-else-if="team.manager">(manager: {{ team.manager.username }})</span>
-        </li>
-      </ul>
+      <div class="card">
+        <h3>My teams</h3>
+        <p v-if="teams.length === 0" class="muted">You are not in any team yet.</p>
+        <ul class="team-list">
+          <li v-for="team in teams" :key="team.id">
+            <strong>{{ team.name }}</strong>
+            <span v-if="team.manager_id === user.id" class="tag you">you manage it</span>
+            <span v-else-if="team.manager" class="tag">manager: {{ team.manager.username }}</span>
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
@@ -83,3 +87,40 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.form label {
+  font-weight: 600;
+  font-size: 14px;
+}
+.section-label {
+  margin: 8px 0 0;
+}
+.team-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.team-list li {
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tag {
+  background: #f1f5f9;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.tag.you {
+  background: rgba(16, 185, 129, 0.14);
+  color: #059669;
+}
+.muted {
+  color: var(--muted);
+}
+</style>

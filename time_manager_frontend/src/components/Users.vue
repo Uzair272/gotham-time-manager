@@ -20,15 +20,15 @@
           <td>{{ u.username }}</td>
           <td>{{ u.email }}</td>
           <td>
-            <!-- Only an admin can promote / demote (and not themself) -->
             <select
               v-if="isAdmin && u.id !== myId"
               :value="u.role"
               @change="changeRole(u, $event.target.value)"
+              class="role-select"
             >
               <option v-for="r in roles" :key="r.id" :value="r.name">{{ r.name }}</option>
             </select>
-            <span v-else>{{ u.role }}</span>
+            <span v-else class="role-pill">{{ u.role }}</span>
           </td>
           <td>
             <template v-if="canSeeData(u)">
@@ -39,13 +39,13 @@
             <span v-else class="muted">not in your teams</span>
           </td>
           <td v-if="isAdmin">
-            <button v-if="u.id !== myId" @click="deleteUser(u)">Delete</button>
+            <button v-if="u.id !== myId" class="small danger" @click="deleteUser(u)">Delete</button>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <div v-if="isAdmin">
+    <div v-if="isAdmin" class="card">
       <h3>Create a user</h3>
       <form class="form" @submit.prevent="createUser">
         <input v-model="newUser.username" placeholder="Username" required />
@@ -93,7 +93,6 @@ export default {
         ]);
         this.users = users.data.data;
         this.roles = roles.data.data;
-        // Members of the teams I manage (a manager can only see their data)
         this.memberIds = teams.data.data
           .filter((t) => t.manager_id === this.myId)
           .flatMap((t) => t.members.map((m) => m.id));
@@ -139,6 +138,26 @@ export default {
 
 <style scoped>
 .muted {
-  color: #999;
+  color: var(--muted);
+}
+.role-pill {
+  background: #f1f5f9;
+  border-radius: 999px;
+  padding: 3px 12px;
+  text-transform: capitalize;
+  font-weight: 600;
+  font-size: 13px;
+}
+.role-select {
+  width: auto;
+  padding: 6px 10px;
+}
+.small {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+td a {
+  text-decoration: none;
+  font-weight: 600;
 }
 </style>

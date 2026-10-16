@@ -1,16 +1,19 @@
 <template>
   <div class="clock-manager">
-    <h2>Clock for user {{ userId }}</h2>
+    <h2>My clock</h2>
 
     <p v-if="error" class="error">{{ error }}</p>
 
-    <div v-else>
-      <p v-if="clockIn">
-        Currently <strong>clocked in</strong> since {{ startDateTime }}
-      </p>
-      <p v-else>Currently <strong>clocked out</strong></p>
+    <div v-else class="card clock-card">
+      <span class="chip" :class="clockIn ? 'on' : 'off'">
+        <span class="dot"></span>{{ clockIn ? "On duty" : "Off duty" }}
+      </span>
 
-      <button @click="clock">
+      <p class="since" v-if="clockIn">Clocked in since {{ startDateTime }}</p>
+      <p class="since" v-else>Tap the button to start your shift</p>
+
+      <button class="clock-btn" :class="{ 'is-in': clockIn }" @click="clock">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></svg>
         {{ clockIn ? "Clock out" : "Clock in" }}
       </button>
     </div>
@@ -78,15 +81,65 @@ export default {
 };
 </script>
 
-<style>
-.clock-manager {
-  padding: 10px 20px;
+<style scoped>
+.clock-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  padding: 36px 20px;
 }
-.error {
-  color: red;
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
 }
-button {
-  font-size: 1.1em;
-  padding: 10px 20px;
+.chip .dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+.chip.on {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+.chip.on .dot {
+  background: #059669;
+}
+.chip.off {
+  background: rgba(100, 116, 139, 0.14);
+  color: var(--muted);
+}
+.chip.off .dot {
+  background: var(--muted);
+}
+.since {
+  color: var(--muted);
+  margin: 0;
+}
+.clock-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 18px 40px;
+  border-radius: 999px;
+  font-size: 18px;
+  font-weight: 800;
+  background: linear-gradient(135deg, #10b981, #059669);
+  box-shadow: 0 8px 22px rgba(16, 185, 129, 0.35);
+}
+.clock-btn svg {
+  color: #fff;
+  width: 22px;
+  height: 22px;
+}
+.clock-btn.is-in {
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  box-shadow: 0 8px 22px rgba(239, 68, 68, 0.35);
 }
 </style>

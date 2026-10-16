@@ -1,21 +1,25 @@
 <template>
   <div class="working-time-form">
-    <h2>{{ isEditing ? "Edit" : "New" }} working time for user {{ userId }}</h2>
+    <h2>{{ isEditing ? "Edit" : "New" }} working time</h2>
 
-    <label>Start (YYYY-MM-DD hh:mm:ss)</label>
-    <input v-model="start" placeholder="2026-09-27 09:00:00" />
+    <div class="card">
+      <form class="form" @submit.prevent="save">
+        <label>Start (YYYY-MM-DD hh:mm:ss)</label>
+        <input v-model="start" placeholder="2026-09-27 09:00:00" />
 
-    <label>End (YYYY-MM-DD hh:mm:ss)</label>
-    <input v-model="end" placeholder="2026-09-27 17:00:00" />
+        <label>End (YYYY-MM-DD hh:mm:ss)</label>
+        <input v-model="end" placeholder="2026-09-27 17:00:00" />
 
-    <p v-if="error" class="error">{{ error }}</p>
+        <p v-if="error" class="error">{{ error }}</p>
 
-    <div class="actions">
-      <button @click="save">{{ isEditing ? "Save" : "Create" }}</button>
-      <button v-if="isEditing" @click="deleteWorkingTime" class="danger">
-        Delete
-      </button>
-      <router-link :to="'/workingTimes/' + userId">Cancel</router-link>
+        <div class="actions">
+          <button type="submit">{{ isEditing ? "Save" : "Create" }}</button>
+          <button v-if="isEditing" type="button" @click="deleteWorkingTime" class="danger">
+            Delete
+          </button>
+          <router-link :to="'/workingTimes/' + userId" class="cancel">Cancel</router-link>
+        </div>
+      </form>
     </div>
   </div>
 </template>
@@ -107,32 +111,23 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .working-time-form {
-  padding: 10px 20px;
-  max-width: 400px;
+  max-width: 460px;
 }
 .working-time-form label {
-  display: block;
-  margin-top: 10px;
-  font-weight: bold;
-}
-.working-time-form input {
-  width: 100%;
-  padding: 6px;
-  margin-top: 4px;
+  font-weight: 600;
+  font-size: 14px;
 }
 .actions {
-  margin-top: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 6px;
 }
-.actions button,
-.actions a {
-  margin-right: 10px;
-}
-.danger {
-  color: red;
-}
-.error {
-  color: red;
+.cancel {
+  text-decoration: none;
+  color: var(--muted);
+  font-weight: 600;
 }
 </style>

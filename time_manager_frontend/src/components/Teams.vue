@@ -2,15 +2,15 @@
   <div>
     <h2>Teams</h2>
     <p v-if="error" class="error">{{ error }}</p>
-    <p v-if="!loading && teams.length === 0">No team to show.</p>
+    <p v-if="!loading && teams.length === 0" class="card empty">No team to show.</p>
 
-    <div v-for="team in teams" :key="team.id" class="team">
-      <h3>
-        {{ team.name }}
-        <button v-if="isAdmin" class="small" @click="deleteTeam(team)">Delete team</button>
-      </h3>
+    <div v-for="team in teams" :key="team.id" class="card team">
+      <div class="team-head">
+        <h3>{{ team.name }}</h3>
+        <button v-if="isAdmin" class="small danger" @click="deleteTeam(team)">Delete team</button>
+      </div>
 
-      <p>
+      <p class="mgr">
         Manager:
         <select
           v-if="isAdmin"
@@ -20,21 +20,20 @@
           <option :value="null">(none)</option>
           <option v-for="m in managers" :key="m.id" :value="m.id">{{ m.username }}</option>
         </select>
-        <span v-else>{{ team.manager ? team.manager.username : "none" }}</span>
+        <span v-else class="pill">{{ team.manager ? team.manager.username : "none" }}</span>
       </p>
 
-      <ul>
+      <ul class="members">
         <li v-for="member in team.members" :key="member.id">
-          {{ member.username }} ({{ member.email }})
+          <span><strong>{{ member.username }}</strong> <span class="muted">{{ member.email }}</span></span>
           <button v-if="canManage(team)" class="small" @click="removeMember(team, member)">
             Remove
           </button>
         </li>
-        <li v-if="team.members.length === 0">No members yet.</li>
+        <li v-if="team.members.length === 0" class="muted">No members yet.</li>
       </ul>
 
-      <!-- Add a member: only the admin or this team's manager -->
-      <div v-if="canManage(team)">
+      <div v-if="canManage(team)" class="add-row">
         <select v-model="toAdd[team.id]">
           <option disabled value="">Add someone...</option>
           <option v-for="u in notMembers(team)" :key="u.id" :value="u.id">
@@ -45,7 +44,7 @@
       </div>
     </div>
 
-    <div v-if="isAdmin">
+    <div v-if="isAdmin" class="card">
       <h3>New team</h3>
       <form class="form" @submit.prevent="createTeam">
         <input v-model="newTeam.name" placeholder="Team name" required />
@@ -92,7 +91,6 @@ export default {
       try {
         const { data } = await api.get("/teams");
         this.teams = data.data;
-        // Only managers and admins can list users (to add them to a team)
         if (auth.hasRole("manager", "admin")) {
           const users = await api.get("/users");
           this.users = users.data.data;
@@ -146,15 +144,50 @@ export default {
 </script>
 
 <style scoped>
-.team {
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 10px 15px;
-  margin-bottom: 15px;
-  max-width: 600px;
+.team-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.team-head h3 {
+  margin: 0;
+}
+.mgr {
+  color: var(--muted);
+}
+.pill {
+  background: #f1f5f9;
+  border-radius: 999px;
+  padding: 2px 10px;
+  color: var(--text);
+  font-weight: 600;
+}
+.members {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+.members li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.add-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
 }
 .small {
   font-size: 12px;
-  margin-left: 8px;
+  padding: 6px 12px;
+}
+.muted {
+  color: var(--muted);
+}
+.empty {
+  text-align: center;
+  color: var(--muted);
 }
 </style>

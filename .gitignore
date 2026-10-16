@@ -1,0 +1,30 @@
+# ---- Secrets / local environment ----
+.env
+
+# ---- Elixir / Phoenix (backend) ----
+/time_manager/_build/
+/time_manager/deps/
+/time_manager/*.ez
+/time_manager/priv/static/
+erl_crash.dump
+*.beam
+
+# ---- Node / Vue (web + mobile) ----
+node_modules/
+dist/
+npm-debug.log*
+yarn-error.log*
+
+# ---- Capacitor / Android build artifacts ----
+/time_manager_mobile/android/app/build/
+/time_manager_mobile/android/build/
+/time_manager_mobile/android/.gradle/
+/time_manager_mobile/ios/
+*.apk
+*.aab
+
+# ---- Editor / OS ----
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

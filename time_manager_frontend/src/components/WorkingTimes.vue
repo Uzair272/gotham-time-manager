@@ -1,8 +1,9 @@
 <template>
   <div class="working-times">
-    <h2>Working times for user {{ userId }}</h2>
-
-    <router-link :to="'/workingTime/' + userId">+ Add a working time</router-link>
+    <div class="page-head">
+      <h2>Working times</h2>
+      <router-link :to="'/workingTime/' + userId" class="add-btn">+ Add a working time</router-link>
+    </div>
 
     <p v-if="error" class="error">{{ error }}</p>
 
@@ -19,17 +20,15 @@
         <tr v-for="wt in workingTimes" :key="wt.id">
           <td>{{ wt.start }}</td>
           <td>{{ wt.end }}</td>
-          <td>{{ duration(wt) }}</td>
+          <td><span class="dur">{{ duration(wt) }}</span></td>
           <td>
-            <router-link :to="'/workingTime/' + userId + '/' + wt.id"
-              >Edit</router-link
-            >
+            <router-link :to="'/workingTime/' + userId + '/' + wt.id" class="link-edit">Edit</router-link>
           </td>
         </tr>
       </tbody>
     </table>
 
-    <p v-else-if="!error">No working times recorded yet.</p>
+    <div v-else-if="!error" class="card empty">No working times recorded yet.</div>
   </div>
 </template>
 
@@ -77,23 +76,41 @@ export default {
 };
 </script>
 
-<style>
-.working-times {
-  padding: 10px 20px;
+<style scoped>
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 10px;
 }
-table {
-  border-collapse: collapse;
-  margin-top: 10px;
-  width: 100%;
-  max-width: 700px;
+.page-head h2 {
+  margin: 0;
 }
-th,
-td {
-  border: 1px solid #ccc;
-  padding: 6px 12px;
-  text-align: left;
+.add-btn {
+  text-decoration: none;
+  background: linear-gradient(90deg, var(--primary), var(--primary-2));
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
 }
-.error {
-  color: red;
+.dur {
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--primary-2);
+  border-radius: 8px;
+  padding: 3px 10px;
+  font-weight: 700;
+  font-size: 13px;
+}
+.link-edit {
+  font-weight: 600;
+  text-decoration: none;
+}
+.empty {
+  color: var(--muted);
+  text-align: center;
 }
 </style>

@@ -1,36 +1,30 @@
 <template>
   <div class="chart-manager">
-    <h2>Charts for user {{ userId }}</h2>
+    <h2>My charts</h2>
 
     <p v-if="error" class="error">{{ error }}</p>
-    <p v-else-if="!hasData">No working times yet, nothing to chart.</p>
+    <p v-else-if="!hasData" class="card empty">No working times yet, nothing to chart.</p>
 
-    <div v-else>
-      <div class="chart-box">
-        <h3>Hours worked per day (bar)</h3>
-        <bar-chart
-          :chart-data="hoursPerDayData"
-          :options="chartOptions"
-          :height="250"
-        />
+    <div v-else class="chart-grid">
+      <div class="card chart-box">
+        <h3>Hours worked per day</h3>
+        <div class="canvas-wrap">
+          <bar-chart :chart-data="hoursPerDayData" :options="chartOptions" :height="250" />
+        </div>
       </div>
 
-      <div class="chart-box">
-        <h3>Hours worked over time (line)</h3>
-        <line-chart
-          :chart-data="hoursPerDayData"
-          :options="chartOptions"
-          :height="250"
-        />
+      <div class="card chart-box">
+        <h3>Hours worked over time</h3>
+        <div class="canvas-wrap">
+          <line-chart :chart-data="hoursPerDayData" :options="chartOptions" :height="250" />
+        </div>
       </div>
 
-      <div class="chart-box">
-        <h3>Share of total hours per day (pie)</h3>
-        <pie-chart
-          :chart-data="pieData"
-          :options="chartOptions"
-          :height="250"
-        />
+      <div class="card chart-box">
+        <h3>Share of total hours per day</h3>
+        <div class="canvas-wrap">
+          <pie-chart :chart-data="pieData" :options="chartOptions" :height="250" />
+        </div>
       </div>
     </div>
   </div>
@@ -98,8 +92,8 @@ export default {
         datasets: [
           {
             label: "Hours worked",
-            backgroundColor: "#3b8dd4",
-            borderColor: "#3b8dd4",
+            backgroundColor: "#3b82f6",
+            borderColor: "#1e3a8a",
             fill: false,
             data: hours,
           },
@@ -107,12 +101,12 @@ export default {
       };
 
       const colors = [
-        "#3b8dd4",
-        "#e07b39",
-        "#4caf50",
-        "#9c27b0",
-        "#f44336",
-        "#ffc107",
+        "#3b82f6",
+        "#f5b301",
+        "#10b981",
+        "#8b5cf6",
+        "#ef4444",
+        "#06b6d4",
       ];
       this.pieData = {
         labels,
@@ -128,18 +122,20 @@ export default {
 };
 </script>
 
-<style>
-.chart-manager {
-  padding: 10px 20px;
+<style scoped>
+.chart-grid {
+  display: grid;
+  gap: 18px;
 }
-.chart-box {
+.chart-box h3 {
+  margin-top: 0;
+}
+.canvas-wrap {
   position: relative;
-  height: 300px;
-  max-width: 600px;
-  margin-bottom: 60px;
-  overflow: hidden;
+  height: 280px;
 }
-.error {
-  color: red;
+.empty {
+  text-align: center;
+  color: var(--muted);
 }
 </style>
